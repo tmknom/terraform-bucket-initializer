@@ -28,13 +28,16 @@ lint-shellscript:
 lint-markdown:
 	docker run --rm -i -v "$(CURDIR):/work" tmknom/markdownlint
 
-format: format-shellscript format-markdown format-json format-yaml ## Format code
+format: format-shellscript format-markdown format-json ## Format code
 
 format-shellscript:
 	$(call list_shellscript) | xargs -I {} docker run --rm -v "$(CURDIR):/work" -w /work tmknom/shfmt -i 2 -ci -kp -w {}
 
 format-markdown:
 	docker run --rm -v "$(CURDIR):/work" tmknom/prettier --parser=markdown --write '**/*.md'
+
+format-json:
+	docker run --rm -v "$(CURDIR):/work" tmknom/prettier --parser=json --write '**/*.json'
 
 
 # https://postd.cc/auto-documented-makefile/
