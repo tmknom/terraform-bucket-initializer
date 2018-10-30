@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Create S3 bucket for Terraform backend
+#
+# Terraform is an administrative tool that manages your infrastructure,
+# and so ideally the infrastructure that is used by Terraform should exist
+# outside of the infrastructure that Terraform manages.
+#
+# It is highly recommended that you enable Bucket Versioning on the S3 bucket
+# to allow for state recovery in the case of accidental deletions and human error.
+#
+# https://www.terraform.io/docs/backends/types/s3.html
+
+if ! type aws >/dev/null 2>&1; then
+  printf "\nNot found aws, run command\n\n"
+  printf "    \033[36mpip install awscli\033[0m\n"
+  exit 1
+fi
+
+set -eux
+
+BUCKET_NAME=$1
+LEGION=${2:-ap-northeast-1}
+
+# Creates a new bucket.
+# Regions outside of us-east-1 require the appropriate LocationConstraint
+# to be specified in order to create the bucket in the desired region.
+# https://docs.aws.amazon.com/cli/latest/reference/s3api/create-bucket.html
+aws s3api create-bucket --bucket "${BUCKET_NAME}" --create-bucket-configuration LocationConstraint="${LEGION}"
+
+# Sets the versioning state of an existing bucket.
+# https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.html
+aws s3api put-bucket-versioning --bucket "${BUCKET_NAME}" --versioning-configuration Status=Enabled
+
+# Creates a new server-side encryption configuration.
+# https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-encryption.html
+aws s3api put-bucket-encryption --bucket "${BUCKET_NAME}" --server-side-encryption-configuration '{
+  "Rules": [
+    {
+      "ApplyServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+      }
+    }
+  ]
+}'
+
+# Show results
+aws s3api get-bucket-location --bucket "${BUCKET_NAME}"
+aws s3api get-bucket-versioning --bucket "${BUCKET_NAME}"
+aws s3api get-bucket-encryption --bucket "${BUCKET_NAME}"
