@@ -44,6 +44,15 @@ aws s3api put-bucket-encryption --bucket "${BUCKET_NAME}" --server-side-encrypti
   ]
 }'
 
+# Creates or modifies the PublicAccessBlock configuration for an Amazon S3 bucket.
+# https://docs.aws.amazon.com/cli/latest/reference/s3api/put-public-access-block.html
+aws s3api put-public-access-block --bucket "${BUCKET_NAME}" --public-access-block-configuration '{
+  "BlockPublicAcls": true,
+  "IgnorePublicAcls": true,
+  "BlockPublicPolicy": true,
+  "RestrictPublicBuckets": true
+}'
+
 # Show results
 aws s3api get-bucket-location --bucket "${BUCKET_NAME}"
 aws s3api get-bucket-versioning --bucket "${BUCKET_NAME}"
