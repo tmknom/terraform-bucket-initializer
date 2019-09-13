@@ -12,6 +12,7 @@ So, this script provision S3 bucket for Terraform backend, which provides recomm
 
 - Enable Default Encryption
 - Enable Versioning
+- Enable Public Access Block
 
 ## Requirements
 
